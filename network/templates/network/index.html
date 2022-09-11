@@ -1,5 +1,36 @@
 {% extends "network/layout.html" %}
 
 {% block body %}
-    TODO
+    {% if user.is_authenticated %}
+        <div style="border: 1px solid #b9b9b9; margin-left: 10px; margin-right: 10px; margin-top: 20px;">
+            <form action ="{% url 'newpost' %}" method="post" style="margin-left:10px; margin-right:10px;">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="exampleInputEmail1"><b>New Post</b></label>
+                    <textarea class = "form-control" type="textarea" name="content" placeholder="Post..."></textarea>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary"> Post </button>
+                </div>
+            </form>
+        </div>
+    {% endif %}
+        {% for post in posts %}
+            <div style="border: 1px solid #b9b9b9; margin-left: 10px; margin-right: 10px; margin-top: 10px;">
+                <div class="row" style="margin: 5px;">
+                    <div>            
+                        <ul style="list-style:none; padding-left: 1px;">
+                            <li> <b>{{ post.author }}</b></li>
+                            <li style="margin-top: 5px;"> {{ post.content }} </li>
+                            <li style="color: rgb(183, 183, 183)"> {{ post.timestamp }} </li>
+                            <li style="margin-top: 5px;"> {{ post.likes }} likes</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        {% endfor %}
+    <div id="posts">
+        
+    </div>
 {% endblock %}
