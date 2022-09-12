@@ -3,12 +3,24 @@ from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
+from django.core.paginator import Paginator
 
 from .models import User, Post
 
 def index(request):
+    #paginator 
+    all_posts = Post.objects.all().order_by('-timestamp')
+    paginator = Paginator(all_posts,10)
+
+    try: 
+        posts = paginator.get_page(request.GET.get('page'))
+    except:
+        posts = paginator.page(1)
+
+    
     return render(request, "network/index.html", {
-        "posts": Post.objects.all().order_by('-timestamp')
+        "posts": posts,
+        "paginator": paginator
     })
 
 
@@ -71,5 +83,28 @@ def newpost(request):
         new_post = Post(author=author, content = content)
         new_post.save()
         return HttpResponseRedirect(reverse('index'))
+
+def profile(request, author):
+    #determine number of followers
+    #determine the number of following
+
+    # get author's posts
+    author = User.objects.get(username=author)
+    all_posts = Post.objects.filter(author = author).order_by('-timestamp')
+    paginator = Paginator(all_posts,10)
+
+    try: 
+        posts = paginator.get_page(request.GET.get('page'))
+    except:
+        posts = paginator.page(1)
+
+    return render(request, "network/profile.html", {
+        "profile": author,
+        "posts": posts,
+        "posts_number": len(posts),
+        "followers": 0,
+        "following": 0,
+        "paginator": paginator
+    })
 
     
