@@ -87,6 +87,7 @@ def newpost(request):
 def profile(request, author):
     #determine the number of following
     author = User.objects.get(username=author)
+    
     try: 
         num_following = len(Follow.objects.get(user = author).following.all())
     except:
@@ -100,6 +101,15 @@ def profile(request, author):
     all_posts = Post.objects.filter(author = author).order_by('-timestamp')
     paginator = Paginator(all_posts,10)
 
+    # Follow or unfallow
+    user = User.objects.get(username = request.user)
+    following = Follow.objects.get(user = user).following.all()
+    if author in following:
+        is_following = True
+    else:
+        is_following = False
+
+    # Paginator
     try: 
         posts = paginator.get_page(request.GET.get('page'))
     except:
@@ -111,7 +121,8 @@ def profile(request, author):
         "posts_number": len(posts),
         "followers": num_followers,
         "following": num_following,
-        "paginator": paginator
+        "paginator": paginator,
+        "is_following": is_following
     })
 
 def following(request):
@@ -125,9 +136,29 @@ def following(request):
     except:
         posts = paginator.page(1)
 
-    
     return render(request, "network/following.html", {
         "posts": posts,
-        "paginator": paginator
+        "paginator": paginator,
     })
+
+def follow(request, author):
+    if request.method == "POST":
+        user = User.objects.get(username=request.user)
+        author = User.objects.get(username = author)
+
+    try:
+        Follow.objects.get(user = user).following.add(author)
+    except:
+        new_follow = Follow(user = user, following = author)
+        new_follow.save()
+
+    return HttpResponseRedirect(reverse("profile", args=(author,)))
+
+def unfollow(request, author):
+    if request.method == "POST":
+        user = User.objects.get(username=request.user)
+        author = User.objects.get(username = author)
     
+    Follow.objects.get(user = user).following.remove(author)
+
+    return HttpResponseRedirect(reverse("profile", args=(author,)))

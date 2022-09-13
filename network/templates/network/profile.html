@@ -2,7 +2,6 @@
 
 
 {% block body %}
-    
     <div class="row" style="margin: 2px;">
         <div class="col-4">
             <img src="https://t3.ftcdn.net/jpg/03/46/83/96/360_F_346839683_6nAPzbhpSkIpb8pmAwufkC7c5eD7wYws.jpg" alt="profile photo" class="img-rounded" style="width: 196px; height: 196px; margin-left:5px;">
@@ -16,7 +15,17 @@
             <div>
                 {% if user.is_authenticated %}
                     {% if user.id != profile.id %}
-                        <button class="btn btn-primary" style="margin-top:20px;">Follow</button>
+                        {% if is_following %}
+                            <form action="{% url 'unfollow' profile %}" method="post">
+                                {% csrf_token %}
+                                <button class="btn btn-primary" style="margin-top:20px;">Unfollow</button>
+                            </form>
+                        {% else %}
+                            <form action="{% url 'follow' profile %}" method="post">
+                                {% csrf_token %}
+                                <button class="btn btn-primary" style="margin-top:20px;">Follow</button>
+                            </form>
+                        {% endif %}
                     {% endif %}
                 {% endif %}
             </div>
