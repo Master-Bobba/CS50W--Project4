@@ -5,7 +5,7 @@ from django.shortcuts import render
 from django.urls import reverse
 from django.core.paginator import Paginator
 
-from .models import User, Post
+from .models import User, Post, Follow
 
 def index(request):
     #paginator 
@@ -85,11 +85,18 @@ def newpost(request):
         return HttpResponseRedirect(reverse('index'))
 
 def profile(request, author):
-    #determine number of followers
     #determine the number of following
+    author = User.objects.get(username=author)
+    try: 
+        num_following = len(Follow.objects.get(user = author).following.all())
+    except:
+        num_following = 0
+    
+    # determine the number of followers
+    num_followers = len(author.following.all())
 
     # get author's posts
-    author = User.objects.get(username=author)
+    
     all_posts = Post.objects.filter(author = author).order_by('-timestamp')
     paginator = Paginator(all_posts,10)
 
@@ -102,9 +109,25 @@ def profile(request, author):
         "profile": author,
         "posts": posts,
         "posts_number": len(posts),
-        "followers": 0,
-        "following": 0,
+        "followers": num_followers,
+        "following": num_following,
         "paginator": paginator
     })
 
+def following(request):
+    following = Follow.objects.get(user = request.user).following.all()
+    all_posts = Post.objects.filter(author__in = following).order_by('-timestamp')
+
+    paginator = Paginator(all_posts,10)
+
+    try: 
+        posts = paginator.get_page(request.GET.get('page'))
+    except:
+        posts = paginator.page(1)
+
+    
+    return render(request, "network/following.html", {
+        "posts": posts,
+        "paginator": paginator
+    })
     

@@ -10,8 +10,11 @@ class Post(models.Model):
     author = models.ForeignKey(User, blank=False, on_delete=models.CASCADE, related_name="posts")
     content = models.CharField(max_length=280, blank=False)
     timestamp = models.DateTimeField(auto_now_add = True)
-    likes = models.IntegerField(default = "0")
+    likes = models.ManyToManyField(User, blank=True)
 
     def __str__(self):
         return f"On {self.timestamp}, {self.author} said {self.content}"
 
+class Follow(models.Model):
+    user = models.ForeignKey(User, blank=False, on_delete=models.CASCADE, related_name='follower')
+    following = models.ManyToManyField(User, blank = False, related_name="following")
