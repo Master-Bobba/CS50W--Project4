@@ -1,9 +1,14 @@
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 from django.core.paginator import Paginator
+import json
+from django.http import JsonResponse 
+from django.views.decorators.csrf import csrf_exempt
+
 
 from .models import User, Post, Follow
 
@@ -20,7 +25,7 @@ def index(request):
     
     return render(request, "network/index.html", {
         "posts": posts,
-        "paginator": paginator
+        "paginator": paginator,
     })
 
 
@@ -162,3 +167,29 @@ def unfollow(request, author):
     Follow.objects.get(user = user).following.remove(author)
 
     return HttpResponseRedirect(reverse("profile", args=(author,)))
+
+
+@csrf_exempt
+@login_required
+def like(request, post_id):
+    #get the post that has been liked
+    try:
+        post=Post.objects.get(pk = post_id)
+    except:
+        return JsonResponse({"error": "Post not found."}, status=404)
+
+    # get the user who liked the post
+    user = User.objects.get(username = request.user)
+    
+    # Update records 
+    if request.method == "PUT":
+        data = json.loads(request.body)
+        if data.get("like") is not None:
+            post.likes.add(user)
+            post.likes_count = post.likes_count + 1
+            post.save()
+        if data.get("unlike") is not None:
+            post.likes.remove(user)
+            post.likes_count = post.likes_count - 1
+            post.save()
+        return HttpResponse(status=204)
