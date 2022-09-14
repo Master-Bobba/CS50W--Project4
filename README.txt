@@ -31,7 +31,7 @@ DONE --> Pagination: On any page that displays posts, posts should only be displ
     first page, a “Previous” button should appear to take the user to the previous page of posts as well.
     See the Hints section for some suggestions on how to implement this.
 
-Edit Post: Users should be able to click an “Edit” button or link on any of their own posts to 
+DONE --> Edit Post: Users should be able to click an “Edit” button or link on any of their own posts to 
 edit that post.
     When a user clicks “Edit” for one of their own posts, the content of their post should be 
     replaced with a textarea where the user can edit the content of their post.
@@ -40,7 +40,7 @@ edit that post.
     For security, ensure that your application is designed such that it is not possible for 
     a user, via any route, to edit another user’s posts.
 
-“Like” and “Unlike”: Users should be able to click a button or link on any post to toggle 
+DONE --> “Like” and “Unlike”: Users should be able to click a button or link on any post to toggle 
     whether or not they “like” that post.
     Using JavaScript, you should asynchronously let the server know to update the like count 
     (as via a call to fetch) and then update the post’s like count displayed on the page, without 

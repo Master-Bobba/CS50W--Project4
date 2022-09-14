@@ -106,9 +106,13 @@ def profile(request, author):
     all_posts = Post.objects.filter(author = author).order_by('-timestamp')
     paginator = Paginator(all_posts,10)
 
-    # Follow or unfallow
+    # Follow or unfollow
     user = User.objects.get(username = request.user)
-    following = Follow.objects.get(user = user).following.all()
+    try:
+        following = Follow.objects.get(user = user).following.all()
+    except:
+        following = []
+
     if author in following:
         is_following = True
     else:
@@ -131,7 +135,11 @@ def profile(request, author):
     })
 
 def following(request):
-    following = Follow.objects.get(user = request.user).following.all()
+    try:
+        following = Follow.objects.get(user = request.user).following.all()
+    except:
+        following = []
+        
     all_posts = Post.objects.filter(author__in = following).order_by('-timestamp')
 
     paginator = Paginator(all_posts,10)
@@ -193,3 +201,18 @@ def like(request, post_id):
             post.likes_count = post.likes_count - 1
             post.save()
         return HttpResponse(status=204)
+
+@csrf_exempt
+@login_required
+def edit(request, post_id):
+    # get the post we want error if it doesnt exist
+    try:
+        post=Post.objects.get(pk = post_id)
+    except:
+        return JsonResponse({"error": "Post not found."}, status=404)
+
+    if request.method == "PUT":
+        data = json.loads(request.body)
+        post.content = data['edit']
+        post.save()
+    return HttpResponse(status=204)

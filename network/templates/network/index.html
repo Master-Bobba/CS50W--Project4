@@ -21,18 +21,26 @@
             <div class="row" style="margin: 5px;">
                 <div>            
                     <ul style="list-style:none; padding-left: 1px;">
-                        <li> <a href="{% url 'profile' post.author %}" style="color:black;"> <b>{{ post.author }}</b></a></li>
-                        <li style="margin-top: 5px;"> {{ post.content }} </li>
+                        <li > <a href="{% url 'profile' post.author %}" style="color:black;"> <b>{{ post.author }}</b></a></li>
+                        <li id="post-content-{{post.id}}" style="margin-top: 5px;"> {{ post.content }}</li>
+                        {% if request.user == post.author %}
+                            <button data-edit="{{ post.id }}" class="edit-button">Edit</button>
+                        {% endif %}
                         <li style="color: rgb(183, 183, 183)"> {{ post.timestamp }} </li>
-                        <li style="margin-top: 5px; " id="likes-count-{{post.id}}"> {{ post.likes_count}} </li> 
                     </ul>
-                    {% if user.is_authenticated %}
+                    <div>
+                        <span id="likes-count-{{post.id}}"> {{ post.likes_count}} </span> Likes
+                    </div>
+                        
+                    <div style="margin-top:7px;">
+                        {% if user.is_authenticated %}
                         {% if request.user in post.likes.all %}
-                            <button data-post="{{ post.id }}" class="btn btn-outline-primary">Unlike</button>
+                            <button data-post="{{ post.id }}" class="like-button">Unlike</button>
                         {% else %}
-                            <button data-post="{{ post.id }}" class="btn btn-outline-primary">Like</button>
+                            <button data-post="{{ post.id }}" class="like-button">Like</button>
                         {% endif %}
                     {% endif %}
+                    </div>
                 </div>
             </div>
         </div>
